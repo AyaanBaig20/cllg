@@ -8,6 +8,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import axios from "axios";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Resume from "./pages/Resume";
 
 const App = () => {
   let dispatch = useDispatch();
@@ -39,6 +40,7 @@ const App = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/home" element={<Home />} />
       </Route>
+      <Route path="/resume" element={<Resume />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
     </Routes>
