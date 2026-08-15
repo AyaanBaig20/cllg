@@ -13,6 +13,7 @@ import {
   Phone,
   MapPin,
 } from "lucide-react";
+import axios from "axios";
 
 const Resume = () => {
   const [formData, setFormData] = useState({
@@ -90,7 +91,7 @@ const Resume = () => {
 
   const addPoint = (section, index) => {
     const updated = formData[section].map((item, i) =>
-      i === index ? { ...item, points: [...item.points, ""] } : item
+      i === index ? { ...item, points: [...item.points, ""] } : item,
     );
 
     setFormData((prev) => ({
@@ -103,7 +104,7 @@ const Resume = () => {
     const updated = formData[section].map((item, i) =>
       i === itemIndex
         ? { ...item, points: item.points.filter((_, p) => p !== pointIndex) }
-        : item
+        : item,
     );
 
     setFormData((prev) => ({
@@ -119,7 +120,7 @@ const Resume = () => {
             ...item,
             points: item.points.map((p, pi) => (pi === pointIndex ? value : p)),
           }
-        : item
+        : item,
     );
 
     setFormData((prev) => ({
@@ -152,11 +153,6 @@ const Resume = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
-  };
-
   const inputClass =
     "w-full rounded-lg border border-blue-200 bg-white p-3 text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
@@ -178,7 +174,31 @@ const Resume = () => {
       <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
     </div>
   );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
+    try {
+      const response = await axios.post("http://localhost:3000/api/resume/create", formData, {
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(response.data);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${formData.fullName || "resume"}.pdf`;
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+
+      alert(error.response?.data?.message || "Failed to generate resume");
+    }
+  };
   return (
     <div className="min-h-screen bg-blue-50 p-4 md:p-8">
       <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl bg-white shadow-lg shadow-blue-100">
@@ -189,14 +209,19 @@ const Resume = () => {
             <h1 className="text-3xl font-bold">Resume Builder</h1>
           </div>
           <p className="mt-2 text-blue-100">
-            Fill in each section below to put together a clean, professional resume.
+            Fill in each section below to put together a clean, professional
+            resume.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-8">
           {/* PERSONAL INFO */}
           <div className="mb-10">
-            <SectionHeading icon={User} number="1" title="Personal Information" />
+            <SectionHeading
+              icon={User}
+              number="1"
+              title="Personal Information"
+            />
 
             <div className="grid gap-4 md:grid-cols-2">
               <input
@@ -274,7 +299,11 @@ const Resume = () => {
 
           {/* SUMMARY */}
           <div className="mb-10">
-            <SectionHeading icon={FileText} number="2" title="Professional Summary" />
+            <SectionHeading
+              icon={FileText}
+              number="2"
+              title="Professional Summary"
+            />
 
             <textarea
               rows="5"
@@ -289,7 +318,11 @@ const Resume = () => {
           {/* EDUCATION */}
           <div className="mb-10">
             <div className="mb-4 flex items-center justify-between">
-              <SectionHeading icon={GraduationCap} number="3" title="Education" />
+              <SectionHeading
+                icon={GraduationCap}
+                number="3"
+                title="Education"
+              />
 
               <button
                 type="button"
@@ -316,7 +349,12 @@ const Resume = () => {
                       placeholder="Degree"
                       value={edu.degree}
                       onChange={(e) =>
-                        updateNestedField("education", index, "degree", e.target.value)
+                        updateNestedField(
+                          "education",
+                          index,
+                          "degree",
+                          e.target.value,
+                        )
                       }
                     />
 
@@ -329,7 +367,7 @@ const Resume = () => {
                           "education",
                           index,
                           "institution",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                     />
@@ -339,7 +377,12 @@ const Resume = () => {
                       placeholder="Graduation year"
                       value={edu.year}
                       onChange={(e) =>
-                        updateNestedField("education", index, "year", e.target.value)
+                        updateNestedField(
+                          "education",
+                          index,
+                          "year",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -386,7 +429,12 @@ const Resume = () => {
                     placeholder="Project title"
                     value={project.title}
                     onChange={(e) =>
-                      updateNestedField("projects", index, "title", e.target.value)
+                      updateNestedField(
+                        "projects",
+                        index,
+                        "title",
+                        e.target.value,
+                      )
                     }
                   />
 
@@ -402,20 +450,30 @@ const Resume = () => {
                 </div>
 
                 {project.points.map((point, pointIndex) => (
-                  <div key={pointIndex} className="mb-2 flex items-center gap-2">
+                  <div
+                    key={pointIndex}
+                    className="mb-2 flex items-center gap-2"
+                  >
                     <input
                       className={`${inputClass} flex-1`}
                       placeholder={`Bullet ${pointIndex + 1}`}
                       value={point}
                       onChange={(e) =>
-                        updatePoint("projects", index, pointIndex, e.target.value)
+                        updatePoint(
+                          "projects",
+                          index,
+                          pointIndex,
+                          e.target.value,
+                        )
                       }
                     />
                     {project.points.length > 1 && (
                       <button
                         type="button"
                         className={removeBtnClass}
-                        onClick={() => removePoint("projects", index, pointIndex)}
+                        onClick={() =>
+                          removePoint("projects", index, pointIndex)
+                        }
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -467,7 +525,12 @@ const Resume = () => {
                       placeholder="Role"
                       value={exp.role}
                       onChange={(e) =>
-                        updateNestedField("experience", index, "role", e.target.value)
+                        updateNestedField(
+                          "experience",
+                          index,
+                          "role",
+                          e.target.value,
+                        )
                       }
                     />
 
@@ -476,7 +539,12 @@ const Resume = () => {
                       placeholder="Company"
                       value={exp.company}
                       onChange={(e) =>
-                        updateNestedField("experience", index, "company", e.target.value)
+                        updateNestedField(
+                          "experience",
+                          index,
+                          "company",
+                          e.target.value,
+                        )
                       }
                     />
 
@@ -489,7 +557,7 @@ const Resume = () => {
                           "experience",
                           index,
                           "startDate",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                     />
@@ -499,7 +567,12 @@ const Resume = () => {
                       placeholder="End date"
                       value={exp.endDate}
                       onChange={(e) =>
-                        updateNestedField("experience", index, "endDate", e.target.value)
+                        updateNestedField(
+                          "experience",
+                          index,
+                          "endDate",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -516,20 +589,30 @@ const Resume = () => {
                 </div>
 
                 {exp.points.map((point, pointIndex) => (
-                  <div key={pointIndex} className="mb-2 flex items-center gap-2">
+                  <div
+                    key={pointIndex}
+                    className="mb-2 flex items-center gap-2"
+                  >
                     <input
                       className={`${inputClass} flex-1`}
                       placeholder={`Responsibility ${pointIndex + 1}`}
                       value={point}
                       onChange={(e) =>
-                        updatePoint("experience", index, pointIndex, e.target.value)
+                        updatePoint(
+                          "experience",
+                          index,
+                          pointIndex,
+                          e.target.value,
+                        )
                       }
                     />
                     {exp.points.length > 1 && (
                       <button
                         type="button"
                         className={removeBtnClass}
-                        onClick={() => removePoint("experience", index, pointIndex)}
+                        onClick={() =>
+                          removePoint("experience", index, pointIndex)
+                        }
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -563,7 +646,9 @@ const Resume = () => {
                   <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
                     {number}
                   </span>
-                  <h2 className="text-xl font-semibold text-slate-900">{label}</h2>
+                  <h2 className="text-xl font-semibold text-slate-900">
+                    {label}
+                  </h2>
                 </div>
 
                 <button
@@ -582,7 +667,9 @@ const Resume = () => {
                     className={`${inputClass} flex-1`}
                     placeholder={`Enter ${label.toLowerCase()}`}
                     value={item}
-                    onChange={(e) => updateSimpleArray(field, index, e.target.value)}
+                    onChange={(e) =>
+                      updateSimpleArray(field, index, e.target.value)
+                    }
                   />
                   {formData[field].length > 1 && (
                     <button

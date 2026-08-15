@@ -1,5 +1,6 @@
 import express from "express"
 import authRoute from "./routes/auth.route.js"
+import resumeRoute from "./routes/resume.route.js"
 import cookieParser from "cookie-parser";
 import cors from "cors"
 
@@ -16,5 +17,6 @@ app.use(cookieParser());
 
 // routes
 app.use("/api/auth",authRoute)
+app.use("/api/resume",resumeRoute)
 
 export default app
