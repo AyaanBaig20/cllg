@@ -56,8 +56,7 @@ export async function login(req, res) {
 }
 export async function signup(req, res) {
   try {
-    console.log(req.body);
-    
+
     const { name, email, password } = req.body;
 
     // Check if user already exists
