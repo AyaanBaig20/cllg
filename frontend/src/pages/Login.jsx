@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { setUser, setloading } from "../redux/features/user";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {failureToast,successToast} from "../utilis/toast"
 
 export default function Login() {
   let navigate = useNavigate()
@@ -39,13 +40,13 @@ export default function Login() {
 
       if (res.data.success) {
         dispatch(setUser(res.data.user));
-        alert("login successful");
+        successToast("login successful");
         setTimeout(() => {
           navigate("/home");
         }, 5000);
       }
     } catch (error) {
-      alert(error.response?.data?.message || error.message);
+      failureToast(error.response?.data?.message || error.message);
     } finally {
       dispatch(setloading(false));
     }

@@ -14,6 +14,7 @@ import {
   MapPin,
 } from "lucide-react";
 import axios from "axios";
+import {failureToast,successToast} from "../utilis/toast"
 
 const Resume = () => {
   const [formData, setFormData] = useState({
@@ -176,7 +177,6 @@ const Resume = () => {
   );
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response = await axios.post("http://localhost:3000/api/resume/create", formData, {
         responseType: "blob",
@@ -193,10 +193,11 @@ const Resume = () => {
 
       link.remove();
       window.URL.revokeObjectURL(url);
+      successToast("Resume Generate")
     } catch (error) {
       console.error(error);
 
-      alert(error.response?.data?.message || "Failed to generate resume");
+      failureToast(error.response?.data?.message || "Failed to generate resume");
     }
   };
   return (

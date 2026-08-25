@@ -3,6 +3,12 @@ import puppeteer from "puppeteer";
 export const generateResume = async (req, res) => {
   try {
     const data = req.body;
+    if (!data) {
+      return res.status(400).json({
+      success: false,
+      message: "all field is required",
+    });
+    }
 
     const html = `
     <!DOCTYPE html>
