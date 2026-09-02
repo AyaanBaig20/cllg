@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { setUser, setloading } from "./redux/features/user";
-import { useDispatch ,useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Hero from "./pages/Hero";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import axios from "axios";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Resume from "./pages/Resume";
+import Admin from "./pages/Admin";
+import AdminRoute from "./components/AdminRoute"
 
 const App = () => {
   let dispatch = useDispatch();
@@ -35,7 +37,7 @@ const App = () => {
 
     checkUser();
   }, [dispatch]);
-  
+
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkmode);
   }, [darkmode]);
@@ -43,9 +45,12 @@ const App = () => {
     <Routes>
       <Route path="/" element={<Hero />} />
       <Route element={<ProtectedRoute />}>
-      </Route>
-      <Route path="/resume" element={<Resume />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/resume" element={<Resume />} />
+      </Route>
+      <Route element={<AdminRoute/>}>
+        <Route path="/admin" element={<Admin />} />
+      </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
     </Routes>

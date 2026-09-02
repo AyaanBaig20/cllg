@@ -44,6 +44,7 @@ export async function login(req, res) {
       user: {
         id: user._id,
         email: user.email,
+        role:user.role
       },
     });
 
@@ -101,6 +102,7 @@ export async function signup(req, res) {
         id: user._id,
         name: user.name,
         email: user.email,
+        role:"user"
       },
     });
 
@@ -144,6 +146,30 @@ export async function getMe(req, res) {
     return res.status(200).json({
       success: true,
       user,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+export async function deleteUser(req, res) {
+  try {
+    const { id } = req.body;
+
+    const deleted = await User.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
     });
   } catch (error) {
     return res.status(500).json({

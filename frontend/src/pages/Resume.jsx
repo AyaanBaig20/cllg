@@ -1,20 +1,7 @@
 import React, { useState } from "react";
-import {
-  Plus,
-  Trash2,
-  User,
-  FileText,
-  GraduationCap,
-  FolderKanban,
-  Briefcase,
-  Sparkles,
-  Link,
-  Mail,
-  Phone,
-  MapPin,
-} from "lucide-react";
+import {  Plus,  Trash2,  User,  FileText,  GraduationCap,  FolderKanban,  Briefcase,  Sparkles,  Link,  Mail,  Phone,  MapPin,} from "lucide-react";
 import axios from "axios";
-import {failureToast,successToast} from "../utilis/toast"
+import { failureToast, successToast } from "../utilis/toast";
 
 const Resume = () => {
   const [formData, setFormData] = useState({
@@ -178,9 +165,15 @@ const Resume = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/api/resume/create", formData, {
-        responseType: "blob",
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/resume/create",
+        formData,
+        {
+          responseType: "blob",
+          withCredentials:true
+        },
+        
+      );
 
       const url = window.URL.createObjectURL(response.data);
 
@@ -193,11 +186,13 @@ const Resume = () => {
 
       link.remove();
       window.URL.revokeObjectURL(url);
-      successToast("Resume Generate")
+      successToast("Resume Generate");
     } catch (error) {
       console.error(error);
 
-      failureToast(error.response?.data?.message || "Failed to generate resume");
+      failureToast(
+        error.response?.data?.message || "Failed to generate resume",
+      );
     }
   };
   return (
@@ -239,6 +234,7 @@ const Resume = () => {
                 name="jobTitle"
                 value={formData.jobTitle}
                 onChange={handleChange}
+                
               />
 
               <div className="relative">
@@ -249,6 +245,8 @@ const Resume = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+
+
                 />
               </div>
 
@@ -260,6 +258,8 @@ const Resume = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
+                
+
                 />
               </div>
 
@@ -271,6 +271,8 @@ const Resume = () => {
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
+                
+
                 />
               </div>
 
@@ -282,6 +284,8 @@ const Resume = () => {
                   name="githubUrl"
                   value={formData.githubUrl}
                   onChange={handleChange}
+                
+
                 />
               </div>
 
@@ -293,6 +297,8 @@ const Resume = () => {
                   name="linkedinUrl"
                   value={formData.linkedinUrl}
                   onChange={handleChange}
+                
+
                 />
               </div>
             </div>

@@ -1,14 +1,23 @@
 import puppeteer from "puppeteer";
+import User from "../model/user.model.js";
 
 export const generateResume = async (req, res) => {
   try {
+    await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        $inc: { resumeCreated: 1 },
+      },
+      { new: true },
+    );
+
     const data = req.body;
-    if (!data) {
-      return res.status(400).json({
-      success: false,
-      message: "all field is required",
-    });
-    }
+    // if (!data) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "all field is required",
+    //   });
+    // }
 
     const html = `
     <!DOCTYPE html>
@@ -125,12 +134,10 @@ export const generateResume = async (req, res) => {
               </div>
 
               <ul>
-                ${exp.points
-                  ?.map((point) => `<li>${point}</li>`)
-                  .join("")}
+                ${exp.points?.map((point) => `<li>${point}</li>`).join("")}
               </ul>
             </div>
-          `
+          `,
           )
           .join("")}
       </div>
@@ -148,12 +155,10 @@ export const generateResume = async (req, res) => {
               <div class="item-title">${project.title}</div>
 
               <ul>
-                ${project.points
-                  ?.map((point) => `<li>${point}</li>`)
-                  .join("")}
+                ${project.points?.map((point) => `<li>${point}</li>`).join("")}
               </ul>
             </div>
-          `
+          `,
           )
           .join("")}
       </div>
@@ -171,7 +176,7 @@ export const generateResume = async (req, res) => {
 
               <div>${edu.year}</div>
             </div>
-          `
+          `,
           )
           .join("")}
       </div>
@@ -181,10 +186,7 @@ export const generateResume = async (req, res) => {
 
         <div class="skills">
           ${data.skills
-            ?.map(
-              (skill) =>
-                `<span class="skill">${skill}</span>`
-            )
+            ?.map((skill) => `<span class="skill">${skill}</span>`)
             .join("")}
         </div>
       </div>
@@ -196,9 +198,7 @@ export const generateResume = async (req, res) => {
         <h2>Certifications</h2>
 
         <ul>
-          ${data.certifications
-            .map((cert) => `<li>${cert}</li>`)
-            .join("")}
+          ${data.certifications.map((cert) => `<li>${cert}</li>`).join("")}
         </ul>
       </div>
       `
@@ -213,10 +213,7 @@ export const generateResume = async (req, res) => {
 
         <ul>
           ${data.achievements
-            .map(
-              (achievement) =>
-                `<li>${achievement}</li>`
-            )
+            .map((achievement) => `<li>${achievement}</li>`)
             .join("")}
         </ul>
       </div>
@@ -231,12 +228,7 @@ export const generateResume = async (req, res) => {
         <h2>Languages</h2>
 
         <ul>
-          ${data.languages
-            .map(
-              (language) =>
-                `<li>${language}</li>`
-            )
-            .join("")}
+          ${data.languages.map((language) => `<li>${language}</li>`).join("")}
         </ul>
       </div>
       `
@@ -250,12 +242,7 @@ export const generateResume = async (req, res) => {
         <h2>Interests</h2>
 
         <ul>
-          ${data.interests
-            .map(
-              (interest) =>
-                `<li>${interest}</li>`
-            )
-            .join("")}
+          ${data.interests.map((interest) => `<li>${interest}</li>`).join("")}
         </ul>
       </div>
       `
@@ -285,14 +272,29 @@ export const generateResume = async (req, res) => {
 
     res.set({
       "Content-Type": "application/pdf",
-      "Content-Disposition":
-        "attachment; filename=resume.pdf",
+      "Content-Disposition": "attachment; filename=resume.pdf",
     });
 
     return res.send(pdf);
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
 
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getAllUser = async (req, res) => {
+  try {
+    const allUser = await User.find({}).select("-password");
+
+    return res.status(200).json({
+      success: true,
+      allUser,
+    });
+  } catch (error) {
     return res.status(500).json({
       success: false,
       message: error.message,

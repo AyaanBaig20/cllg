@@ -87,6 +87,7 @@ return (
             value={formData.name}
             onChange={handleChange}
             placeholder="John Doe"
+            required
             className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-300"
           />
         </div>
@@ -103,6 +104,7 @@ return (
             value={formData.email}
             onChange={handleChange}
             placeholder="john@example.com"
+            required
             className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-300"
           />
         </div>
@@ -119,6 +121,7 @@ return (
             value={formData.password}
             onChange={handleChange}
             placeholder="john123"
+            required
             className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-300"
           />
         </div>
