@@ -44,7 +44,8 @@ export async function login(req, res) {
       user: {
         id: user._id,
         email: user.email,
-        role:user.role
+        role:user.role,
+        name:user.name
       },
     });
 

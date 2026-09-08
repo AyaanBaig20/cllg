@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import {  Plus,  Trash2,  User,  FileText,  GraduationCap,  FolderKanban,  Briefcase,  Sparkles,  Link,  Mail,  Phone,  MapPin,} from "lucide-react";
+import {  Plus,  Trash2,  User,  FileText,  GraduationCap,  FolderKanban,  Briefcase,  Sparkles,  Link,  Mail,  Phone,  MapPin,  ChevronLeft,  ChevronRight,  Check,} from "lucide-react";
 import axios from "axios";
 import { failureToast, successToast } from "../utilis/toast";
 
 const Resume = () => {
+  const [step, setStep] = useState(0);
+
   const [formData, setFormData] = useState({
     fullName: "",
     jobTitle: "",
@@ -154,7 +156,7 @@ const Resume = () => {
     "inline-flex items-center gap-1 rounded-md border border-blue-200 px-2.5 py-1.5 text-xs font-medium text-blue-700 transition hover:bg-blue-100";
 
   const SectionHeading = ({ icon: Icon, number, title }) => (
-    <div className="mb-4 flex items-center gap-3">
+    <div className="mb-6 flex items-center gap-3">
       <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
         {number}
       </span>
@@ -162,6 +164,28 @@ const Resume = () => {
       <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
     </div>
   );
+
+  // ---- Step definitions ----
+  // Every step is a small, focused piece of the overall form.
+  const steps = [
+    { key: "personal", label: "Personal", icon: User },
+    { key: "summary", label: "Summary", icon: FileText },
+    { key: "education", label: "Education", icon: GraduationCap },
+    { key: "projects", label: "Projects", icon: FolderKanban },
+    { key: "experience", label: "Experience", icon: Briefcase },
+    { key: "skills", label: "Skills", icon: Sparkles },
+    { key: "certifications", label: "Certifications", icon: Sparkles },
+    { key: "achievements", label: "Achievements", icon: Sparkles },
+    { key: "languages", label: "Languages", icon: Sparkles },
+    { key: "interests", label: "Interests", icon: Sparkles },
+  ];
+
+  const isFirstStep = step === 0;
+  const isLastStep = step === steps.length - 1;
+
+  const goNext = () => setStep((s) => Math.min(s + 1, steps.length - 1));
+  const goBack = () => setStep((s) => Math.max(s - 1, 0));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -170,9 +194,8 @@ const Resume = () => {
         formData,
         {
           responseType: "blob",
-          withCredentials:true
+          withCredentials: true,
         },
-        
       );
 
       const url = window.URL.createObjectURL(response.data);
@@ -195,24 +218,73 @@ const Resume = () => {
       );
     }
   };
-  return (
-    <div className="min-h-screen bg-blue-50 p-4 md:p-8">
-      <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl bg-white shadow-lg shadow-blue-100">
-        {/* HEADER */}
-        <div className="bg-blue-600 px-8 py-8 text-white">
+
+  // Pressing Enter inside a step shouldn't submit the whole form early.
+  const handleFormKeyDown = (e) => {
+    if (e.key === "Enter" && !isLastStep) {
+      e.preventDefault();
+      goNext();
+    }
+  };
+
+  const simpleListMeta = {
+    skills: { label: "Skills", number: "6" },
+    certifications: { label: "Certifications", number: "7" },
+    achievements: { label: "Achievements", number: "8" },
+    languages: { label: "Languages", number: "9" },
+    interests: { label: "Interests", number: "10" },
+  };
+
+  const renderSimpleList = (field) => {
+    const { label, number } = simpleListMeta[field];
+    return (
+      <div>
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Sparkles className="h-7 w-7" />
-            <h1 className="text-3xl font-bold">Resume Builder</h1>
+            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+              {number}
+            </span>
+            <h2 className="text-xl font-semibold text-slate-900">{label}</h2>
           </div>
-          <p className="mt-2 text-blue-100">
-            Fill in each section below to put together a clean, professional
-            resume.
-          </p>
+
+          <button
+            type="button"
+            className={addBtnClass}
+            onClick={() => addSimpleArrayItem(field)}
+          >
+            <Plus className="h-4 w-4" />
+            Add
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8">
-          {/* PERSONAL INFO */}
-          <div className="mb-10">
+        {formData[field].map((item, index) => (
+          <div key={index} className="mb-2 flex items-center gap-2">
+            <input
+              className={`${inputClass} flex-1`}
+              placeholder={`Enter ${label.toLowerCase()}`}
+              value={item}
+              onChange={(e) => updateSimpleArray(field, index, e.target.value)}
+            />
+            {formData[field].length > 1 && (
+              <button
+                type="button"
+                className={removeBtnClass}
+                onClick={() => removeSimpleArrayItem(field, index)}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderStepContent = () => {
+    switch (steps[step].key) {
+      case "personal":
+        return (
+          <div>
             <SectionHeading
               icon={User}
               number="1"
@@ -226,6 +298,7 @@ const Resume = () => {
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
+                required
               />
 
               <input
@@ -234,7 +307,7 @@ const Resume = () => {
                 name="jobTitle"
                 value={formData.jobTitle}
                 onChange={handleChange}
-                
+                required
               />
 
               <div className="relative">
@@ -245,8 +318,7 @@ const Resume = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-
-
+                  required
                 />
               </div>
 
@@ -258,8 +330,7 @@ const Resume = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                
-
+                  required
                 />
               </div>
 
@@ -271,8 +342,7 @@ const Resume = () => {
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
-                
-
+                  required
                 />
               </div>
 
@@ -284,8 +354,7 @@ const Resume = () => {
                   name="githubUrl"
                   value={formData.githubUrl}
                   onChange={handleChange}
-                
-
+                  required
                 />
               </div>
 
@@ -297,15 +366,16 @@ const Resume = () => {
                   name="linkedinUrl"
                   value={formData.linkedinUrl}
                   onChange={handleChange}
-                
-
+                  required
                 />
               </div>
             </div>
           </div>
+        );
 
-          {/* SUMMARY */}
-          <div className="mb-10">
+      case "summary":
+        return (
+          <div>
             <SectionHeading
               icon={FileText}
               number="2"
@@ -313,18 +383,21 @@ const Resume = () => {
             />
 
             <textarea
-              rows="5"
+              rows="8"
               className={inputClass}
               placeholder="Write a short summary of your experience and strengths..."
               name="summary"
               value={formData.summary}
               onChange={handleChange}
+              required
             />
           </div>
+        );
 
-          {/* EDUCATION */}
-          <div className="mb-10">
-            <div className="mb-4 flex items-center justify-between">
+      case "education":
+        return (
+          <div>
+            <div className="mb-6 flex items-center justify-between">
               <SectionHeading
                 icon={GraduationCap}
                 number="3"
@@ -369,6 +442,7 @@ const Resume = () => {
                       className={inputClass}
                       placeholder="Institution"
                       value={edu.institution}
+                      required
                       onChange={(e) =>
                         updateNestedField(
                           "education",
@@ -382,6 +456,7 @@ const Resume = () => {
                     <input
                       className={inputClass}
                       placeholder="Graduation year"
+                      required
                       value={edu.year}
                       onChange={(e) =>
                         updateNestedField(
@@ -407,10 +482,12 @@ const Resume = () => {
               </div>
             ))}
           </div>
+        );
 
-          {/* PROJECTS */}
-          <div className="mb-10">
-            <div className="mb-4 flex items-center justify-between">
+      case "projects":
+        return (
+          <div>
+            <div className="mb-6 flex items-center justify-between">
               <SectionHeading icon={FolderKanban} number="4" title="Projects" />
 
               <button
@@ -499,10 +576,12 @@ const Resume = () => {
               </div>
             ))}
           </div>
+        );
 
-          {/* EXPERIENCE */}
-          <div className="mb-10">
-            <div className="mb-4 flex items-center justify-between">
+      case "experience":
+        return (
+          <div>
+            <div className="mb-6 flex items-center justify-between">
               <SectionHeading icon={Briefcase} number="5" title="Experience" />
 
               <button
@@ -638,66 +717,89 @@ const Resume = () => {
               </div>
             ))}
           </div>
+        );
 
-          {/* SIMPLE LISTS */}
-          {[
-            { field: "skills", label: "Skills", number: "6" },
-            { field: "certifications", label: "Certifications", number: "7" },
-            { field: "achievements", label: "Achievements", number: "8" },
-            { field: "languages", label: "Languages", number: "9" },
-            { field: "interests", label: "Interests", number: "10" },
-          ].map(({ field, label, number }) => (
-            <div key={field} className="mb-10">
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
-                    {number}
-                  </span>
-                  <h2 className="text-xl font-semibold text-slate-900">
-                    {label}
-                  </h2>
-                </div>
+      case "skills":
+      case "certifications":
+      case "achievements":
+      case "languages":
+      case "interests":
+        return renderSimpleList(steps[step].key);
 
-                <button
-                  type="button"
-                  className={addBtnClass}
-                  onClick={() => addSimpleArrayItem(field)}
-                >
-                  <Plus className="h-4 w-4" />
-                  Add
-                </button>
-              </div>
+      default:
+        return null;
+    }
+  };
 
-              {formData[field].map((item, index) => (
-                <div key={index} className="mb-2 flex items-center gap-2">
-                  <input
-                    className={`${inputClass} flex-1`}
-                    placeholder={`Enter ${label.toLowerCase()}`}
-                    value={item}
-                    onChange={(e) =>
-                      updateSimpleArray(field, index, e.target.value)
-                    }
-                  />
-                  {formData[field].length > 1 && (
-                    <button
-                      type="button"
-                      className={removeBtnClass}
-                      onClick={() => removeSimpleArrayItem(field, index)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          ))}
+  return (
+    <div className="min-h-screen bg-[#FBF7F2] p-4 md:p-8">
+      <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl bg-white shadow-lg shadow-[#7A0C0C]/10">
+        {/* HEADER */}
+        <div className="bg-[#7A0C0C] px-8 py-8 text-white">
+          <div className="flex items-center gap-3">
+            <Sparkles className="h-7 w-7" />
+            <h1 className="text-3xl font-bold">Resume Builder</h1>
+          </div>
+          <p className="mt-2 text-[#F2B5A8]">
+            Fill in each step below to put together a clean, professional
+            resume.
+          </p>
+        </div>
 
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-blue-600 py-4 text-lg font-semibold text-white transition hover:bg-blue-700"
-          >
-            Generate resume
-          </button>
+        {/* PROGRESS */}
+        <div className="border-b border-[#E7DCD3] bg-[#FBF7F2]/60 px-8 py-4">
+          <div className="mb-2 flex items-center justify-between text-sm font-medium text-[#7A0C0C]">
+            <span>
+              Step {step + 1} of {steps.length}
+            </span>
+            <span>{steps[step].label}</span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-[#F2D9D2]">
+            <div
+              className="h-full rounded-full bg-[#7A0C0C] transition-all duration-300"
+              style={{ width: `${((step + 1) / steps.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} onKeyDown={handleFormKeyDown} className="p-8">
+          {renderStepContent()}
+
+          {/* NAVIGATION */}
+          <div className="mt-10 flex items-center justify-between border-t border-[#E7DCD3] pt-6">
+            <button
+              type="button"
+              onClick={goBack}
+              disabled={isFirstStep}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-medium transition ${
+                isFirstStep
+                  ? "cursor-not-allowed border border-slate-200 text-slate-300"
+                  : "border border-[#E7A99C] text-[#7A0C0C] hover:bg-[#F7E4DF]"
+              }`}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back
+            </button>
+
+            {isLastStep ? (
+              <button
+                type="submit"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#7A0C0C] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5C0909]"
+              >
+                <Check className="h-4 w-4" />
+                Generate resume
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={goNext}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#7A0C0C] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5C0909]"
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </form>
       </div>
     </div>

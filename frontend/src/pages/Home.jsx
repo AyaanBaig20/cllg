@@ -2,15 +2,14 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { setUser, setDarkmode } from "../redux/features/user";
-import { FileText, LogOut, Moon, Sun } from "lucide-react";
+import { setUser } from "../redux/features/user";
+import { FileText, LogOut, ShieldCheck, Sparkles, Download } from "lucide-react";
 
 const Home = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.user.user);
-  const darkmode = useSelector((state) => state.user.darkmode);
 
   const handleLogout = async () => {
     try {
@@ -27,102 +26,132 @@ const Home = () => {
     }
   };
 
-  const handleMode = () => {
-    dispatch(setDarkmode());
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50 transition-colors duration-300 dark:bg-slate-950">
+    <div className="min-h-screen bg-[#FBF7F2] font-sans text-[#1C1210]">
       {/* Navbar */}
-      <nav className="border-b border-slate-200 bg-white transition-colors duration-300 dark:border-slate-700 dark:bg-slate-900">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          {/* Logo */}
-          <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-            ResumeBuilder
-          </h1>
+      <nav className="sticky top-0 z-20 border-b border-[#E7DCD3] bg-[#FBF7F2]/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+          <span className="font-serif text-[1.6rem] tracking-tight text-[#7A0C0C]">
+            Resume<span className="text-[#1C1210]">Builder</span>
+          </span>
 
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleMode}
-              className={`cursor-pointer relative flex h-8 w-16 items-center rounded-full transition-all duration-300 ${
-                darkmode ? "bg-slate-800" : "bg-slate-300"
-              }`}
-            >
-              <div
-                className={`absolute flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300 ${
-                  darkmode ? "translate-x-9" : "translate-x-1"
-                }`}
-              >
-                {darkmode ? (
-                  <Sun size={14} className="text-yellow-500" />
-                ) : (
-                  <Moon size={14} className="text-slate-700" />
-                )}
-              </div>
-            </button>
-
-            {/* Logout */}
-            <button
-              onClick={handleLogout}
-              className="flex cursor-pointer items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"
-            >
-              <LogOut size={18} />
-              Logout
-            </button>
+          <div className="flex items-center gap-3">
             {user?.role === "admin" && (
               <Link to="/admin">
-                <button className="flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-white transition hover:bg-blue-800">
-                  Admin Panel
+                <button className="cursor-pointer rounded-full border border-[#1C1210]/15 px-4 py-2 text-sm font-medium text-[#1C1210] transition hover:border-[#7A0C0C] hover:text-[#7A0C0C]">
+                  Admin panel
                 </button>
               </Link>
             )}
+            {!user&& (
+              <Link to="/login">
+                <button className="cursor-pointer rounded-full border border-[#1C1210]/15 px-4 py-2 text-sm font-medium text-[#1C1210] transition hover:border-[#7A0C0C] hover:text-[#7A0C0C]">
+                  Login
+                </button>
+              </Link>
+            )}
+{ user && (
+            <button
+              onClick={handleLogout}
+              className="flex cursor-pointer items-center gap-2 rounded-full bg-[#7A0C0C] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#5C0909]"
+            >
+              <LogOut size={16} />
+              Log out
+            </button>)}
+
           </div>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className="mx-auto max-w-7xl px-6 py-10">
-        {/* Hero */}
-        <div className="mb-10 rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white shadow-lg">
-          <h1 className="mb-3 text-4xl font-bold">
-            Welcome {user?.name || "User"}
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1800&q=80')",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1C0505]/95 via-[#3A0A0A]/85 to-[#7A0C0C]/70" />
+
+        <div className="relative mx-auto flex max-w-6xl flex-col px-6 py-24 md:py-32">
+          {user &&(<p className="mb-5 text-sm font-medium text-[#F2B5A8]">
+           
+            Welcome {user?.name || "welcome back"}
+          </p>)}
+
+          <h1 className="max-w-2xl font-serif text-5xl leading-[1.1] text-[#FBF7F2] md:text-6xl">
+            A resume that reads the room before the recruiter does.
           </h1>
 
-          <p className="text-lg text-blue-100">
-            Create ATS-friendly resumes and download them instantly as PDF.
+          <p className="mt-6 max-w-xl text-lg text-[#E7C9C1]">
+            Build an ATS-ready resume with formatting that survives every
+            parser, then export it as a polished PDF in minutes.
           </p>
 
           <Link
             to="/resume"
-            className="mt-6 inline-block rounded-xl bg-white px-6 py-3 font-semibold text-blue-600 transition hover:bg-slate-100"
+            className="mt-10 inline-flex w-fit items-center gap-2 rounded-full bg-[#FBF7F2] px-7 py-3.5 font-medium text-[#7A0C0C] transition hover:bg-white"
           >
-            + Create Resume
+            Start a new resume
           </Link>
         </div>
+      </section>
 
-        {/* Empty State */}
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm transition-colors duration-300 dark:border-slate-700 dark:bg-slate-900">
-          <FileText
-            size={60}
-            className="mx-auto mb-4 text-slate-300 dark:text-slate-600"
-          />
+      {/* Value props */}
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <div className="grid gap-12 md:grid-cols-3">
+          <div className="border-t-2 border-[#7A0C0C] pt-6">
+            <ShieldCheck className="mb-4 text-[#7A0C0C]" size={28} />
+            <h3 className="mb-2 font-serif text-xl">Built to pass the scan</h3>
+            <p className="text-[#5C4B45]">
+              Every template is structured so applicant tracking systems read
+              your experience the way you wrote it.
+            </p>
+          </div>
 
-          <h3 className="mb-2 text-xl font-semibold text-slate-700 dark:text-white">
-            Start Building Your Resume
+          <div className="border-t-2 border-[#7A0C0C] pt-6">
+            <Sparkles className="mb-4 text-[#7A0C0C]" size={28} />
+            <h3 className="mb-2 font-serif text-xl">Guided, not generic</h3>
+            <p className="text-[#5C4B45]">
+              Section prompts and phrasing suggestions help you describe your
+              work without sounding like everyone else.
+            </p>
+          </div>
+
+          <div className="border-t-2 border-[#7A0C0C] pt-6">
+            <Download className="mb-4 text-[#7A0C0C]" size={28} />
+            <h3 className="mb-2 font-serif text-xl">One click to PDF</h3>
+            <p className="text-[#5C4B45]">
+              Download a print-ready PDF the moment you're done editing, with
+              layout that holds up on any device.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA / empty state */}
+      <section className="mx-auto max-w-6xl px-6 pb-17">
+        <div className="rounded-2xl border border-[#E7DCD3] bg-white p-14 text-center">
+          <FileText size={48} className="mx-auto mb-5 text-[#7A0C0C]/40" />
+
+          <h3 className="mb-2 font-serif text-2xl text-[#1C1210]">
+            Create your resume
           </h3>
 
-          <p className="mb-5 text-slate-500 dark:text-slate-400">
-            Create a professional resume in just a few minutes.
+          <p className="mx-auto mb-7 max-w-md text-[#5C4B45]">
+            Pick a template, fill in your experience, and export when you're
+            ready. It takes most people under ten minutes.
           </p>
 
           <Link
             to="/resume"
-            className="rounded-lg bg-blue-600 px-5 py-3 text-white transition hover:bg-blue-700"
+            className="inline-block rounded-full bg-[#7A0C0C] px-7 py-3 font-medium text-white transition hover:bg-[#5C0909]"
           >
-            Create Resume
+            Create your resume
           </Link>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

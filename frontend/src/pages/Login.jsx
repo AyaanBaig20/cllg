@@ -5,10 +5,10 @@ import { useDispatch } from "react-redux";
 import { setUser, setloading } from "../redux/features/user";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import {failureToast,successToast} from "../utilis/toast"
+import { failureToast, successToast } from "../utilis/toast";
 
 export default function Login() {
-  let navigate = useNavigate()
+  let navigate = useNavigate();
   let dispatch = useDispatch();
   const [formData, setFormData] = useState({
     email: "",
@@ -42,8 +42,8 @@ export default function Login() {
         dispatch(setUser(res.data.user));
         successToast("login successful");
         setTimeout(() => {
-          navigate("/home");
-        }, 5000);
+          navigate("/");
+        }, 4000);
       }
     } catch (error) {
       failureToast(error.response?.data?.message || error.message);
@@ -52,82 +52,76 @@ export default function Login() {
     }
   };
 
-return (
-  <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-4 transition-colors duration-300">
-    <div className="w-full max-w-md bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-800 transition-colors duration-300">
+  return (
+    <div className="min-h-screen bg-[#FBF7F2] flex items-center justify-center px-4 font-sans">
+      <div className="w-full max-w-md rounded-2xl border border-[#E7DCD3] bg-white p-9 shadow-[0_1px_0_#E7DCD3]">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F7E4DF]">
+            <UserPlus className="text-[#7A0C0C]" size={26} />
+          </div>
 
-      <div className="text-center mb-8">
-        <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-950 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <UserPlus
-            className="text-indigo-600 dark:text-indigo-400"
-            size={28}
-          />
+          <h1 className="font-serif text-3xl text-[#1C1210]">
+            Welcome back
+          </h1>
+
+          <p className="mt-2 text-[#5C4B45]">
+            Sign in to keep building your resume.
+          </p>
         </div>
 
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-          Welcome Back
-        </h1>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-[#1C1210]">
+              Email address
+            </label>
 
-        <p className="text-slate-500 dark:text-slate-400 mt-2">
-          Start building your professional resume.
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="john@example.com"
+              required
+              className="w-full rounded-xl border border-[#E7DCD3] bg-[#FBF7F2] px-4 py-3 text-[#1C1210] placeholder-[#A8968F] transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#7A0C0C]"
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-[#1C1210]">
+              Password
+            </label>
+
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              required
+              className="w-full rounded-xl border border-[#E7DCD3] bg-[#FBF7F2] px-4 py-3 text-[#1C1210] placeholder-[#A8968F] transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#7A0C0C]"
+            />
+          </div>
+
+          {/* Button */}
+          <button
+            type="submit"
+            className="w-full cursor-pointer rounded-xl bg-[#7A0C0C] py-3 font-semibold text-white transition hover:bg-[#5C0909]"
+          >
+            Log in
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-[#5C4B45]">
+          Don't have an account?{" "}
+          <Link to="/signup">
+            <span className="cursor-pointer font-semibold text-[#7A0C0C] hover:text-[#5C0909]">
+              Sign up
+            </span>
+          </Link>
         </p>
       </div>
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-
-        {/* Email */}
-        <div>
-          <label className="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-            Email Address
-          </label>
-
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="john@example.com"
-            required
-            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-300"
-          />
-        </div>
-
-        {/* Password */}
-        <div>
-          <label className="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-            Password
-          </label>
-
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="john123"
-            required
-            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-300"
-          />
-        </div>
-
-        {/* Button */}
-        <button
-          type="submit"
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold transition-all duration-300"
-        >
-          Create Account
-        </button>
-      </form>
-
-      <p className="text-center text-slate-500 dark:text-slate-400 mt-6">
-        Don't have an account?{" "}
-        <Link to="/signup">
-          <span className="text-indigo-600 dark:text-indigo-400 font-semibold cursor-pointer hover:text-indigo-700 dark:hover:text-indigo-300">
-            Signup
-          </span>
-        </Link>
-      </p>
-
     </div>
-  </div>
-);
+  );
 }
