@@ -1,17 +1,26 @@
 import puppeteer from "puppeteer";
 import User from "../model/user.model.js";
+import Resume from "../model/resume.model.js"
 
 export const generateResume = async (req, res) => {
   try {
+      const data = req.body;
+
+    const resume = await Resume.create({
+      ...data,
+      user: req.user.id,
+    });
+
     await User.findByIdAndUpdate(
       req.user.id,
       {
         $inc: { resumeCreated: 1 },
+        $push: { resumes: resume._id },
       },
-      { new: true },
+      { new: true }
     );
 
-    const data = req.body;
+
     // if (!data) {
     //   return res.status(400).json({
     //     success: false,
@@ -288,7 +297,7 @@ export const generateResume = async (req, res) => {
 
 export const getAllUser = async (req, res) => {
   try {
-    const allUser = await User.find({}).select("-password");
+    const allUser = await User.find({}).select("-password").populate("resumes");
 
     return res.status(200).json({
       success: true,

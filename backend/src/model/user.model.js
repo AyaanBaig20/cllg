@@ -23,7 +23,11 @@ const userSchema = new Schema({
   resumeCreated:{
     type:Number,
     default:0
-  }
+  },
+  resumes: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Resume",
+      },
 });
 
 let User = mongoose.model("user",userSchema)
