@@ -35,6 +35,7 @@ const Admin = () => {
 
         if (res.data.success) {
           setUsers(res.data.allUser);
+          console.log(res.data.allUser);
           if (res.data.allUser.length > 0) {
             setSelectedUser(res.data.allUser[0]);
           }
@@ -85,10 +86,10 @@ const Admin = () => {
     u.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Normalize single resume or array of resumes
-  const userResume = selectedUser?.resumes 
-    ? (Array.isArray(selectedUser.resumes) ? selectedUser.resumes[0] : selectedUser.resumes)
-    : null;
+  // Normalize to always be an array of resumes (handles single object or array from API)
+  const userResumes = selectedUser?.resumes
+    ? (Array.isArray(selectedUser.resumes) ? selectedUser.resumes : [selectedUser.resumes])
+    : [];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col">
@@ -208,182 +209,194 @@ const Admin = () => {
           {/* User Resume Viewer */}
           {selectedUser ? (
             <div className="space-y-4">
-              {userResume ? (
-                <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
-                  
-                  {/* Header: Candidate Info */}
-                  <div className="flex flex-wrap justify-between items-start gap-4 border-b border-slate-100 pb-6">
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <h2 className="text-2xl font-bold text-slate-900">
-                          {userResume.fullName || selectedUser.name}
-                        </h2>
-                        {userResume.jobTitle && (
-                          <span className="bg-red-50 text-red-600 text-xs px-3 py-1 rounded-full border border-red-200 font-semibold capitalize">
-                            {userResume.jobTitle}
+              {userResumes.length > 0 ? (
+                userResumes.map((userResume, index) => (
+                  <div
+                    key={userResume._id || index}
+                    className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm"
+                  >
+                    {/* Resume index label (only shown when user has more than one resume) */}
+                    {userResumes.length > 1 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-red-600 uppercase tracking-wider bg-red-50 border border-red-100 px-2.5 py-1 rounded-md">
+                          Resume {index + 1} of {userResumes.length}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Header: Candidate Info */}
+                    <div className="flex flex-wrap justify-between items-start gap-4 border-b border-slate-100 pb-6">
+                      <div>
+                        <div className="flex items-center gap-3">
+                          <h2 className="text-2xl font-bold text-slate-900">
+                            {userResume.fullName || selectedUser.name}
+                          </h2>
+                          {userResume.jobTitle && (
+                            <span className="bg-red-50 text-red-600 text-xs px-3 py-1 rounded-full border border-red-200 font-semibold capitalize">
+                              {userResume.jobTitle}
+                            </span>
+                          )}
+                        </div>
+                        {userResume.summary && (
+                          <p className="text-sm text-slate-600 mt-2.5 max-w-2xl leading-relaxed">
+                            {userResume.summary}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-2 text-xs text-slate-600 bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 min-w-[200px]">
+                        {userResume.email && (
+                          <span className="flex items-center gap-2">
+                            <Mail size={14} className="text-red-600 shrink-0" /> {userResume.email}
+                          </span>
+                        )}
+                        {userResume.phone && (
+                          <span className="flex items-center gap-2">
+                            <Phone size={14} className="text-red-600 shrink-0" /> {userResume.phone}
+                          </span>
+                        )}
+                        {userResume.location && (
+                          <span className="flex items-center gap-2">
+                            <MapPin size={14} className="text-red-600 shrink-0" /> {userResume.location}
                           </span>
                         )}
                       </div>
-                      {userResume.summary && (
-                        <p className="text-sm text-slate-600 mt-2.5 max-w-2xl leading-relaxed">
-                          {userResume.summary}
-                        </p>
-                      )}
                     </div>
 
-                    <div className="flex flex-col gap-2 text-xs text-slate-600 bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 min-w-[200px]">
-                      {userResume.email && (
-                        <span className="flex items-center gap-2">
-                          <Mail size={14} className="text-red-600 shrink-0" /> {userResume.email}
-                        </span>
-                      )}
-                      {userResume.phone && (
-                        <span className="flex items-center gap-2">
-                          <Phone size={14} className="text-red-600 shrink-0" /> {userResume.phone}
-                        </span>
-                      )}
-                      {userResume.location && (
-                        <span className="flex items-center gap-2">
-                          <MapPin size={14} className="text-red-600 shrink-0" /> {userResume.location}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                    {/* Links */}
+                    {(userResume.linkedinUrl || userResume.githubUrl) && (
+                      <div className="flex gap-3">
+                        {userResume.linkedinUrl && (
+                          <a
+                            href={userResume.linkedinUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3.5 py-1.5 rounded-lg border border-red-200 transition-colors"
+                          >
+                            LinkedIn <ExternalLink size={12} />
+                          </a>
+                        )}
+                        {userResume.githubUrl && (
+                          <a
+                            href={userResume.githubUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3.5 py-1.5 rounded-lg border border-red-200 transition-colors"
+                          >
+                            GitHub <ExternalLink size={12} />
+                          </a>
+                        )}
+                      </div>
+                    )}
 
-                  {/* Links */}
-                  {(userResume.linkedinUrl || userResume.githubUrl) && (
-                    <div className="flex gap-3">
-                      {userResume.linkedinUrl && (
-                        <a
-                          href={userResume.linkedinUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3.5 py-1.5 rounded-lg border border-red-200 transition-colors"
-                        >
-                          LinkedIn <ExternalLink size={12} />
-                        </a>
-                      )}
-                      {userResume.githubUrl && (
-                        <a
-                          href={userResume.githubUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3.5 py-1.5 rounded-lg border border-red-200 transition-colors"
-                        >
-                          GitHub <ExternalLink size={12} />
-                        </a>
-                      )}
-                    </div>
-                  )}
+                    {/* Skills & Achievements */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-slate-50/60 p-4 rounded-xl border border-slate-200/80">
+                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                          <Code size={15} className="text-red-600" /> Skills & Languages
+                        </h3>
+                        <div className="flex flex-wrap gap-1.5">
+                          {userResume.skills?.map((skill, idx) => (
+                            skill && (
+                              <span key={idx} className="bg-white text-slate-700 font-medium text-xs px-2.5 py-1 rounded-md border border-slate-200 shadow-2xs">
+                                {skill}
+                              </span>
+                            )
+                          ))}
+                          {userResume.languages?.map((lang, idx) => (
+                            lang && (
+                              <span key={idx} className="bg-red-50 text-red-700 font-medium border border-red-200 text-xs px-2.5 py-1 rounded-md">
+                                {lang}
+                              </span>
+                            )
+                          ))}
+                        </div>
+                      </div>
 
-                  {/* Skills & Achievements */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-slate-50/60 p-4 rounded-xl border border-slate-200/80">
-                      <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <Code size={15} className="text-red-600" /> Skills & Languages
-                      </h3>
-                      <div className="flex flex-wrap gap-1.5">
-                        {userResume.skills?.map((skill, idx) => (
-                          skill && (
-                            <span key={idx} className="bg-white text-slate-700 font-medium text-xs px-2.5 py-1 rounded-md border border-slate-200 shadow-2xs">
-                              {skill}
-                            </span>
-                          )
-                        ))}
-                        {userResume.languages?.map((lang, idx) => (
-                          lang && (
-                            <span key={idx} className="bg-red-50 text-red-700 font-medium border border-red-200 text-xs px-2.5 py-1 rounded-md">
-                              {lang}
-                            </span>
-                          )
-                        ))}
+                      <div className="bg-slate-50/60 p-4 rounded-xl border border-slate-200/80">
+                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                          <Award size={15} className="text-red-600" /> Achievements & Certifications
+                        </h3>
+                        <div className="flex flex-wrap gap-1.5">
+                          {userResume.achievements?.map((ach, idx) => (
+                            ach && (
+                              <span key={idx} className="bg-white text-slate-700 font-medium text-xs px-2.5 py-1 rounded-md border border-slate-200 shadow-2xs">
+                                {ach}
+                              </span>
+                            )
+                          ))}
+                          {userResume.certifications?.map((cert, idx) => (
+                            cert && (
+                              <span key={idx} className="bg-white text-slate-700 font-medium text-xs px-2.5 py-1 rounded-md border border-slate-200 shadow-2xs">
+                                {cert}
+                              </span>
+                            )
+                          ))}
+                        </div>
                       </div>
                     </div>
 
-                    <div className="bg-slate-50/60 p-4 rounded-xl border border-slate-200/80">
-                      <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <Award size={15} className="text-red-600" /> Achievements & Certifications
-                      </h3>
-                      <div className="flex flex-wrap gap-1.5">
-                        {userResume.achievements?.map((ach, idx) => (
-                          ach && (
-                            <span key={idx} className="bg-white text-slate-700 font-medium text-xs px-2.5 py-1 rounded-md border border-slate-200 shadow-2xs">
-                              {ach}
-                            </span>
-                          )
-                        ))}
-                        {userResume.certifications?.map((cert, idx) => (
-                          cert && (
-                            <span key={idx} className="bg-white text-slate-700 font-medium text-xs px-2.5 py-1 rounded-md border border-slate-200 shadow-2xs">
-                              {cert}
-                            </span>
-                          )
-                        ))}
+                    {/* Structural Lists: Education, Experience & Projects */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Education */}
+                      <div className="bg-slate-50/60 p-4 rounded-xl border border-slate-200/80">
+                        <h4 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-2">
+                          <GraduationCap size={15} className="text-red-600" /> Education
+                        </h4>
+                        {Array.isArray(userResume.education) && userResume.education.length > 0 ? (
+                          userResume.education.map((edu, i) => (
+                            <div key={i} className="text-xs space-y-0.5 mb-2 pb-2 border-b border-slate-200/60 last:border-none">
+                              <p className="font-semibold text-slate-900">{edu.degree || edu.institution || "Degree Detail"}</p>
+                              {edu.year && <p className="text-[11px] text-slate-500">{edu.year}</p>}
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs text-slate-400">No education entries.</p>
+                        )}
+                      </div>
+
+                      {/* Experience */}
+                      <div className="bg-slate-50/60 p-4 rounded-xl border border-slate-200/80">
+                        <h4 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-2">
+                          <Briefcase size={15} className="text-red-600" /> Experience
+                        </h4>
+                        {Array.isArray(userResume.experience) && userResume.experience.length > 0 ? (
+                          userResume.experience.map((exp, i) => (
+                            <div key={i} className="text-xs space-y-0.5 mb-2 pb-2 border-b border-slate-200/60 last:border-none">
+                              <p className="font-semibold text-slate-900">{exp.role || exp.company || "Work Detail"}</p>
+                              {exp.duration && <p className="text-[11px] text-slate-500">{exp.duration}</p>}
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs text-slate-400">No experience entries.</p>
+                        )}
+                      </div>
+
+                      {/* Projects */}
+                      <div className="bg-slate-50/60 p-4 rounded-xl border border-slate-200/80">
+                        <h4 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-2">
+                          <FolderGit2 size={15} className="text-red-600" /> Projects
+                        </h4>
+                        {Array.isArray(userResume.projects) && userResume.projects.length > 0 ? (
+                          userResume.projects.map((proj, i) => (
+                            <div key={i} className="text-xs space-y-0.5 mb-2 pb-2 border-b border-slate-200/60 last:border-none">
+                              <p className="font-semibold text-slate-900">{proj.title || "Project Detail"}</p>
+                              {proj.techStack && <p className="text-[11px] text-slate-500">{proj.techStack}</p>}
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs text-slate-400">No projects added.</p>
+                        )}
                       </div>
                     </div>
-                  </div>
 
-                  {/* Structural Lists: Education, Experience & Projects */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Education */}
-                    <div className="bg-slate-50/60 p-4 rounded-xl border border-slate-200/80">
-                      <h4 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-2">
-                        <GraduationCap size={15} className="text-red-600" /> Education
-                      </h4>
-                      {Array.isArray(userResume.education) && userResume.education.length > 0 ? (
-                        userResume.education.map((edu, i) => (
-                          <div key={i} className="text-xs space-y-0.5 mb-2 pb-2 border-b border-slate-200/60 last:border-none">
-                            <p className="font-semibold text-slate-900">{edu.degree || edu.institution || "Degree Detail"}</p>
-                            {edu.year && <p className="text-[11px] text-slate-500">{edu.year}</p>}
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-xs text-slate-400">No education entries.</p>
-                      )}
-                    </div>
-
-                    {/* Experience */}
-                    <div className="bg-slate-50/60 p-4 rounded-xl border border-slate-200/80">
-                      <h4 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-2">
-                        <Briefcase size={15} className="text-red-600" /> Experience
-                      </h4>
-                      {Array.isArray(userResume.experience) && userResume.experience.length > 0 ? (
-                        userResume.experience.map((exp, i) => (
-                          <div key={i} className="text-xs space-y-0.5 mb-2 pb-2 border-b border-slate-200/60 last:border-none">
-                            <p className="font-semibold text-slate-900">{exp.role || exp.company || "Work Detail"}</p>
-                            {exp.duration && <p className="text-[11px] text-slate-500">{exp.duration}</p>}
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-xs text-slate-400">No experience entries.</p>
-                      )}
-                    </div>
-
-                    {/* Projects */}
-                    <div className="bg-slate-50/60 p-4 rounded-xl border border-slate-200/80">
-                      <h4 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-2">
-                        <FolderGit2 size={15} className="text-red-600" /> Projects
-                      </h4>
-                      {Array.isArray(userResume.projects) && userResume.projects.length > 0 ? (
-                        userResume.projects.map((proj, i) => (
-                          <div key={i} className="text-xs space-y-0.5 mb-2 pb-2 border-b border-slate-200/60 last:border-none">
-                            <p className="font-semibold text-slate-900">{proj.title || "Project Detail"}</p>
-                            {proj.techStack && <p className="text-[11px] text-slate-500">{proj.techStack}</p>}
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-xs text-slate-400">No projects added.</p>
-                      )}
+                    {/* Resume Footer Meta */}
+                    <div className="flex justify-between items-center text-[11px] text-slate-400 pt-4 border-t border-slate-100 font-mono">
+                      <span>Resume ID: {userResume._id}</span>
+                      <span>Created: {new Date(userResume.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
-
-                  {/* Resume Footer Meta */}
-                  <div className="flex justify-between items-center text-[11px] text-slate-400 pt-4 border-t border-slate-100 font-mono">
-                    <span>Resume ID: {userResume._id}</span>
-                    <span>Created: {new Date(userResume.createdAt).toLocaleDateString()}</span>
-                  </div>
-
-                </div>
+                ))
               ) : (
                 <div className="bg-white border border-slate-200 rounded-xl p-12 text-center text-slate-500 text-sm shadow-sm">
                   User <span className="text-slate-900 font-semibold">{selectedUser.name}</span> has not created a resume yet.

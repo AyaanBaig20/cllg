@@ -10,6 +10,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Resume from "./pages/Resume";
 import Admin from "./pages/Admin";
 import AdminRoute from "./components/AdminRoute"
+import Templete from "./pages/Templete";
 
 const App = () => {
   let dispatch = useDispatch();
@@ -41,6 +42,7 @@ const App = () => {
       <Route path="/" element={<Home />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/resume" element={<Resume />} />
+        <Route path="/templete" element={<Templete />} />
       </Route>
       <Route element={<AdminRoute/>}>
         <Route path="/admin" element={<Admin />} />

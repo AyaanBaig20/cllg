@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {  Plus,  Trash2,  User,  FileText,  GraduationCap,  FolderKanban,  Briefcase,  Sparkles,  Link,  Mail,  Phone,  MapPin,  ChevronLeft,  ChevronRight,  Check,} from "lucide-react";
 import axios from "axios";
 import { failureToast, successToast } from "../utilis/toast";
+import {useSelector} from "react-redux"
 
 const Resume = () => {
+  const crrtemplete = useSelector((state) => state.user.templete);
   const [step, setStep] = useState(0);
 
   const [formData, setFormData] = useState({
+    template:crrtemplete,
     fullName: "",
     jobTitle: "",
     email: "",
@@ -185,9 +188,11 @@ const Resume = () => {
 
   const goNext = () => setStep((s) => Math.min(s + 1, steps.length - 1));
   const goBack = () => setStep((s) => Math.max(s - 1, 0));
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // await delay(3000)
     try {
       const response = await axios.post(
         "http://localhost:3000/api/resume/create",
@@ -211,21 +216,37 @@ const Resume = () => {
       window.URL.revokeObjectURL(url);
       successToast("Resume Generate");
     } catch (error) {
-      console.error(error);
+  console.log("ERROR:", error);
 
-      failureToast(
-        error.response?.data?.message || "Failed to generate resume",
-      );
+  if (error.response?.data instanceof Blob) {
+    const text = await error.response.data.text();
+
+    try {
+      const data = JSON.parse(text);
+
+      failureToast(data.message || "Failed to generate resume");
+    } catch {
+      failureToast("Failed to generate resume");
     }
+  } else {
+    failureToast(
+      error.response?.data?.message ||
+      error.message ||
+      "Failed to generate resume"
+    );
+  }
+}
   };
 
   // Pressing Enter inside a step shouldn't submit the whole form early.
   const handleFormKeyDown = (e) => {
-    if (e.key === "Enter" && !isLastStep) {
-      e.preventDefault();
+  if (e.key === "Enter") {
+    e.preventDefault();
+    if (!isLastStep) {
       goNext();
     }
-  };
+  }
+};
 
   const simpleListMeta = {
     skills: { label: "Skills", number: "6" },

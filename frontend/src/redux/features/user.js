@@ -4,6 +4,7 @@ const initialState = {
   user: null,
   darkmode: JSON.parse(localStorage.getItem("darkmode") ?? "false"),
   loading: true,
+  templete:null
 };
 
 export const userSlice = createSlice({
@@ -20,10 +21,13 @@ export const userSlice = createSlice({
       state.darkmode = !state.darkmode;
       localStorage.setItem("darkmode", JSON.stringify(state.darkmode));
     },
+    settemplete: (state,action) => {
+      state.templete=action.payload
+    }
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { setUser, setloading, setDarkmode } = userSlice.actions;
+export const { setUser, setloading, setDarkmode , settemplete } = userSlice.actions;
 
 export default userSlice.reducer;

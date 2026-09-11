@@ -1,25 +1,32 @@
 import puppeteer from "puppeteer";
 import User from "../model/user.model.js";
-import Resume from "../model/resume.model.js"
-import { buildResumeHtml }from "../templete/buildResumeHtml.js"
+import Resume from "../model/resume.model.js";
+import { buildResumeHtml } from "../templete/buildResumeHtml.js";
 
 export const generateResume = async (req, res) => {
   try {
     const data = req.body;
+const phone = String(data.phone);
 
-    // const resume = await Resume.create({
-    //   ...data,
-    //   user: req.user.id,
-    // });
+if (phone.length !== 10) {
+  return res.status(400).json({
+  success: false,
+  message: "Phone number should be 10 digits"
+});
+}
+    const resume = await Resume.create({
+      ...data,
+      user: req.user.id,
+    });
 
-    // await User.findByIdAndUpdate(
-    //   req.user.id,
-    //   {
-    //     $inc: { resumeCreated: 1 },
-    //     $push: { resumes: resume._id },
-    //   },
-    //   { new: true }
-    // );
+    await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        $inc: { resumeCreated: 1 },
+        $push: { resumes: resume._id },
+      },
+      { new: true },
+    );
 
     // data.template comes from the frontend, e.g. "classic" | "slate-sidebar" | "editorial-serif"
     const html = buildResumeHtml(data.template, data);

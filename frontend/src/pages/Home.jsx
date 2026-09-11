@@ -90,7 +90,7 @@ const Home = () => {
           </p>
 
           <Link
-            to="/resume"
+            to="/templete"
             className="mt-10 inline-flex w-fit items-center gap-2 rounded-full bg-[#FBF7F2] px-7 py-3.5 font-medium text-[#7A0C0C] transition hover:bg-white"
           >
             Start a new resume
@@ -145,7 +145,7 @@ const Home = () => {
           </p>
 
           <Link
-            to="/resume"
+            to="/templete"
             className="inline-block rounded-full bg-[#7A0C0C] px-7 py-3 font-medium text-white transition hover:bg-[#5C0909]"
           >
             Create your resume

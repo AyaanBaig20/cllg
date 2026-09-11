@@ -24,10 +24,10 @@ const userSchema = new Schema({
     type:Number,
     default:0
   },
-  resumes: {
+  resumes: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Resume",
-      },
+        ref: "Resume",}
+  ],
 });
 
 let User = mongoose.model("user",userSchema)
